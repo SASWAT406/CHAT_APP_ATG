@@ -1,0 +1,43 @@
+{
+  "name": "antigravity-desktop",
+  "version": "1.0.0",
+  "description": "Antigravity Real-Time Desktop Chat with Firebase Google Auth & Email Alerts",
+  "main": "main.js",
+  "author": "Antigravity Team",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron .",
+    "pack": "electron-builder --dir --win --x64",
+    "dist": "electron-builder --win --x64"
+  },
+  "dependencies": {
+    "firebase": "^10.12.5",
+    "googleapis": "^174.0.1",
+    "socket.io-client": "^4.7.5"
+  },
+  "devDependencies": {
+    "electron": "^31.3.1",
+    "electron-builder": "^24.13.3"
+  },
+  "build": {
+    "appId": "com.antigravity.desktop",
+    "productName": "Antigravity",
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "target": [
+        "nsis",
+        "portable"
+      ],
+      "artifactName": "${productName} Setup ${version}.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Antigravity"
+    }
+  }
+}

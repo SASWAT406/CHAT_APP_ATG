@@ -1,0 +1,28 @@
+const fs = require('fs');
+const path = require('path');
+
+// Create assets dir
+const assetsDir = path.join(__dirname, 'assets');
+if (!fs.existsSync(assetsDir)) {
+  fs.mkdirSync(assetsDir, { recursive: true });
+}
+
+// Write an SVG icon for QuickChat (WhatsApp styled chat bubble with lightning/chat)
+const svgIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#00a884;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#005c4b;stop-opacity:1" />
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="8" stdDeviation="16" flood-color="#000000" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+  <rect width="512" height="512" rx="128" fill="#111b21"/>
+  <circle cx="256" cy="256" r="180" fill="url(#grad1)" filter="url(#shadow)"/>
+  <path d="M256 140 C190 140 136 188 136 248 C136 270 144 290 158 306 L146 352 L196 340 C214 350 234 356 256 356 C322 356 376 308 376 248 C376 188 322 140 256 140 Z" fill="#ffffff"/>
+  <path d="M236 195 L210 255 L250 255 L230 305 L295 240 L255 240 Z" fill="#00a884"/>
+</svg>`;
+
+fs.writeFileSync(path.join(assetsDir, 'icon.svg'), svgIcon);
+console.log('Icon generated successfully at chat-client/assets/icon.svg');

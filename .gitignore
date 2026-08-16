@@ -1,0 +1,28 @@
+# Dependencies
+node_modules/
+package-lock.json
+
+# Build outputs and distribution files
+chat-client/dist/
+dist/
+*.zip
+*.exe
+.staging-app/
+.temp-zip-build/
+
+# Sensitive environment variables and local tokens
+.env
+*.env
+*.gmail_tokens.json
+.gmail_tokens.json
+antigravity_gmail_tokens.json
+
+# OS and IDE files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
