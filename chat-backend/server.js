@@ -113,6 +113,16 @@ function getDirectKey(userA, userB) {
 }
 
 // Health Check Endpoint
+app.get('/', (req, res) => {
+  res.json({
+    status: 'online',
+    app: 'QuickChat Backend Server',
+    message: '🚀 QuickChat Backend Server is running live!',
+    websocket: 'Socket.io active',
+    health: '/api/health'
+  });
+});
+
 app.get('/api/health', (req, res) => {
   res.json({
     status: 'online',
