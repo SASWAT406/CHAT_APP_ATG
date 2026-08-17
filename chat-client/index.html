@@ -757,16 +757,19 @@
     // Default Google OAuth Client ID & Secret (bundled for all users)
     const DEFAULT_GOOGLE_CLIENT_ID = '15401024049-dp09ffcq1qop4sb2hauerpmu42bdbgrp.apps.googleusercontent.com';
     const DEFAULT_GOOGLE_CLIENT_SECRET = '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';
-    const DEFAULT_SERVER_URL = 'https://656078a2fff83e.lhr.life';
+    const DEFAULT_SERVER_URL = 'https://chat-app-atg.onrender.com';
 
     // ----------------------------------------------------
     // Application State & Saved Direct Chats
     // ----------------------------------------------------
+    const savedServer = localStorage.getItem('antigravity_server_url');
+    const effectiveServer = (savedServer && !savedServer.includes('lhr.life') && !savedServer.includes('loca.lt') && !savedServer.includes('localhost:5000')) ? savedServer : DEFAULT_SERVER_URL;
+
     const State = {
       user: JSON.parse(localStorage.getItem('antigravity_saved_user')) || null,
       clientId: localStorage.getItem('antigravity_google_client_id') || DEFAULT_GOOGLE_CLIENT_ID,
       clientSecret: localStorage.getItem('antigravity_google_client_secret') || DEFAULT_GOOGLE_CLIENT_SECRET,
-      serverUrl: localStorage.getItem('antigravity_server_url') || DEFAULT_SERVER_URL,
+      serverUrl: effectiveServer,
       
       activeType: 'room', // 'room' or 'direct'
       activeId: 'general', // room name or recipient email
