@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Antigravity - Real-Time Desktop Chat</title>
+  <title>QuickChat - Real-Time Chat & Gmail Messaging</title>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
   
   <style>
     :root {
@@ -838,7 +839,36 @@
     document.addEventListener('DOMContentLoaded', () => {
       el.clientIdInput.value = State.clientId || DEFAULT_GOOGLE_CLIENT_ID;
       el.clientSecretInput.value = State.clientSecret || DEFAULT_GOOGLE_CLIENT_SECRET;
-      el.serverUrlInput.value = State.serverUrl || 'http://localhost:5000';
+      el.serverUrlInput.value = State.serverUrl || DEFAULT_SERVER_URL;
+
+      // Handle Web Browser OAuth Redirect Callback (Vercel / Web)
+      if (window.location.hash && window.location.hash.includes('access_token=')) {
+        const hashParams = new URLSearchParams(window.location.hash.substring(1));
+        const accessToken = hashParams.get('access_token');
+        if (accessToken) {
+          showAuthStatus('Signing in with Google...', 'info');
+          fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+            headers: { Authorization: `Bearer ${accessToken}` }
+          })
+          .then(r => r.json())
+          .then(profile => {
+            if (profile && profile.email) {
+              State.user = {
+                name: profile.name || profile.given_name || 'Google User',
+                email: profile.email,
+                photoURL: profile.picture || '👤',
+                accessToken: accessToken
+              };
+              localStorage.setItem('antigravity_saved_user', JSON.stringify(State.user));
+              window.history.replaceState(null, null, window.location.pathname);
+              initAuthenticatedUI();
+            }
+          })
+          .catch(err => {
+            showAuthStatus('Profile fetch error: ' + err.message, 'error');
+          });
+        }
+      }
 
       renderDirectChats();
 
@@ -1132,6 +1162,46 @@
           }
         } catch (err) {
           showAuthStatus('OAuth Error: ' + err.message, 'error');
+        }
+      } else {
+        // Web Browser Flow (Vercel / Online Web Client)
+        if (window.google && window.google.accounts && window.google.accounts.oauth2) {
+          const client = google.accounts.oauth2.initTokenClient({
+            client_id: State.clientId || DEFAULT_GOOGLE_CLIENT_ID,
+            scope: 'openid email profile https://www.googleapis.com/auth/gmail.send',
+            callback: async (tokenResponse) => {
+              if (tokenResponse && tokenResponse.access_token) {
+                showAuthStatus('Fetching Google user profile...', 'info');
+                try {
+                  const res = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+                    headers: { Authorization: `Bearer ${tokenResponse.access_token}` }
+                  });
+                  const profile = await res.json();
+                  State.user = {
+                    name: profile.name || profile.given_name || 'Google User',
+                    email: profile.email,
+                    photoURL: profile.picture || '👤',
+                    accessToken: tokenResponse.access_token
+                  };
+                  localStorage.setItem('antigravity_saved_user', JSON.stringify(State.user));
+                  initAuthenticatedUI();
+                } catch (err) {
+                  showAuthStatus('Failed to fetch profile: ' + err.message, 'error');
+                }
+              } else {
+                showAuthStatus('Google Sign-In was cancelled or failed.', 'error');
+              }
+            },
+            error_callback: (err) => {
+              showAuthStatus('Google Sign-In error: ' + (err.message || 'Check Google Cloud Authorized Origins'), 'error');
+            }
+          });
+          client.requestAccessToken({ prompt: 'consent' });
+        } else {
+          // Standard browser OAuth redirect fallback
+          const redirectUri = window.location.origin + window.location.pathname;
+          const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${encodeURIComponent(State.clientId || DEFAULT_GOOGLE_CLIENT_ID)}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=token&scope=openid%20email%20profile%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fgmail.send&prompt=consent`;
+          window.location.href = authUrl;
         }
       }
     }
